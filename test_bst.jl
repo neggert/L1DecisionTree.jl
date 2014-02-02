@@ -4,8 +4,11 @@ using BinarySearchTree
 
 function test_insert_and_search{T}(x::Vector{T}, y::Vector{T})
 	t = BST()
+	i = 0
 	for xi in x
+		i += 1
 		insert!(t, xi)
+		@test t.size == i
 	end
 	for xi in x
 		@test(search(t, xi))
@@ -13,23 +16,59 @@ function test_insert_and_search{T}(x::Vector{T}, y::Vector{T})
 	for yi in y
 		@test(!search(t, yi))
 	end
-	return true
 end
 
-function test_size(n)
+function test_insert_vector(x::Vector, y::Vector)
 	t = BST()
-	x = rand(n)
-	insert_many!(t, x)
-	@test(t.size == n)
+	insert!(t, x)
+	@test t.size == length(x)
+	for xi in x
+		@test search(t, xi)
+	end
+	for yi in y
+		@test(!search(t, yi))
+	end
 end
 
-test_insert_and_search(rand(10), rand(10))
-test_insert_and_search(rand(100), rand(100))
-test_insert_and_search(rand(1000), rand(1000))
-test_insert_and_search(rand(10000), rand(10000))
 
-test_size(10)
-test_size(100)
-test_size(1000)
-test_size(10000)
+function test_delete{T}(x::Vector{T})
+	t = BST()
+	insert!(t, x)
+	for i in 1:length(x)
+		delete!(t, x[i])
+		@test !search(t, x[i])
+		@test t.size == length(x) - i
+		for j in i+1:length(x)
+			@test(search(t, x[j]))
+		end
+
+	end
+end
+
+function test_delete_vector{T}(x::Vector{T})
+	t = BST()
+	insert!(t, x)
+	@test t.size == length(x)
+	delete!(t, x[length(x)/2:length(x)])
+	@test t.size == length(x) / 2 - 1
+	for xi in x[length(x)/2:length(x)]
+		@test !search(t, xi)
+	end
+end
+
+function test_min()
+	for i in 1:100
+		t = BST()
+		x = rand(100)
+		insert!(t, x)
+		@test minimum(t) == Base.minimum(x)
+	end
+end
+
+
+test_insert_and_search(rand(1000), rand(1000))
+test_insert_vector(rand(1000), rand(1000))
+test_min()
+test_delete(rand(10))
+test_delete_vector(rand(10))
 
