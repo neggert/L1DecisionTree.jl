@@ -8,7 +8,7 @@ function test_insert_and_search{T}(x::Vector{T}, y::Vector{T})
 	for xi in x
 		i += 1
 		insert!(t, xi)
-		@test t.size == i
+		@test size(t) == i
 	end
 	for xi in x
 		@test(search(t, xi))
@@ -21,7 +21,7 @@ end
 function test_insert_vector(x::Vector, y::Vector)
 	t = BST()
 	insert!(t, x)
-	@test t.size == length(x)
+	@test size(t) == length(x)
 	for xi in x
 		@test search(t, xi)
 	end
@@ -37,7 +37,7 @@ function test_delete{T}(x::Vector{T})
 	for i in 1:length(x)
 		delete!(t, x[i])
 		@test !search(t, x[i])
-		@test t.size == length(x) - i
+		@test size(t) == length(x) - i
 		for j in i+1:length(x)
 			@test(search(t, x[j]))
 		end
@@ -48,9 +48,9 @@ end
 function test_delete_vector{T}(x::Vector{T})
 	t = BST()
 	insert!(t, x)
-	@test t.size == length(x)
+	@test size(t) == length(x)
 	delete!(t, x[length(x)/2:length(x)])
-	@test t.size == length(x) / 2 - 1
+	@test size(t) == length(x) / 2 - 1
 	for xi in x[length(x)/2:length(x)]
 		@test !search(t, xi)
 	end

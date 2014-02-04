@@ -2,53 +2,59 @@ module BinarySearchTree
 
 export BST, insert!, delete!, search, to_array, minimum
 
-using Debug
+import Base.size
 
 abstract AbstractNode
 
-type EmptyLeaf <: AbstractNode
+immutable EmptyLeaf <: AbstractNode
 end
 
-type Leaf{T} <: AbstractNode
+immutable Leaf{T} <: AbstractNode
 	value::T
 end
 
-type Node{T} <: AbstractNode
+immutable Node{T} <: AbstractNode
 	value::T
 	left_child::AbstractNode
 	right_child::AbstractNode
+	size::Int64
+
+	Node(value::T, left_child::AbstractNode, right_child::AbstractNode) = new(value, left_child, right_child, size(left_child) + size(right_child) + 1)
+
 end
+
+Node{T}(value::T, left_child::AbstractNode, right_child::AbstractNode) = Node{T}(value, left_child, right_child)
+
 
 type BST
 	head::AbstractNode
 	size::Int64
-
 end
 
 BST() = BST(EmptyLeaf(), 0::Int64)
 
-function insert{T}(node::Node{T}, value::T)
+function insert(node::Node, value::Real)
 	if value < node.value
-		node.left_child = insert(node.left_child, value)
+		return Node(node.value, insert(node.left_child, value), node.right_child)
 	else
-		node.right_child = insert(node.right_child, value)
+		return Node(node.value, node.left_child, insert(node.right_child, value))
 	end
 	return node
 end
 
-function insert{T}(leaf::EmptyLeaf, value::T)
-	return Leaf{T}(value)
+function insert(leaf::EmptyLeaf, value::Real)
+	return Leaf(value)
 end
 
-function insert{T}(leaf::Leaf{T}, value::T)
+function insert(leaf::Leaf, value::Real)
 	if value < leaf.value
-		return Node{T}(leaf.value, Leaf{T}(value), EmptyLeaf())
+		return Node(leaf.value, Leaf(value), EmptyLeaf())
 	else
-		return Node{T}(leaf.value, EmptyLeaf(), Leaf{T}(value))
+		return Node(leaf.value, EmptyLeaf(), Leaf(value))
 	end
 end
 
-function delete{T}(node::Node{T}, value::T)
+function delete(node::Node, value::Real)
 	# @bp
 	if value < node.value
 		return Node(node.value, delete(node.left_child, value), node.right_child)
@@ -70,7 +76,7 @@ function delete{T}(node::Node{T}, value::T)
 	end
 end
 
-function delete{T}(leaf::Leaf{T}, value::T)
+function delete(leaf::Leaf, value::Real)
 	if value == leaf.value
 		return EmptyLeaf()
 	else
@@ -78,11 +84,11 @@ function delete{T}(leaf::Leaf{T}, value::T)
 	end
 end
 
-function delete{T}(leaf::EmptyLeaf, value::T)
+function delete(leaf::EmptyLeaf, value::Real)
 	throw(KeyError("Tried to delete value from EmptyLeaf"))
 end
 
-function search{T}(node::Node{T}, value::T)
+function search(node::Node, value::Real)
 	if value == node.value
 		return true
 	elseif value < node.value
@@ -92,15 +98,27 @@ function search{T}(node::Node{T}, value::T)
 	end
 end
 
-function search{T}(leaf::Leaf{T}, value::T)
+function search(leaf::Leaf, value::Real)
 	return value == leaf.value
 end
 
-function search{T}(leaf::EmptyLeaf, value::T)
+function search(leaf::EmptyLeaf, value::Real)
 	return false
 end
 
-function minimum{T}(node::Node{T})
+function size(node::Node)
+	return node.size
+end
+
+function size(leaf::Leaf)
+	return 1::Integer
+end
+
+function size(l::EmptyLeaf)
+	return 0::Integer
+end
+
+function minimum(node::Node)
 	if node.left_child == EmptyLeaf()
 		return node.value
 	else
@@ -108,11 +126,11 @@ function minimum{T}(node::Node{T})
 	end
 end
 
-function minimum{T}(leaf::Leaf{T})
+function minimum(leaf::Leaf)
 	return leaf.value
 end
 
-function to_array{T}(node::Node{T})
+function to_array(node::Node)
 	if node.left_child == EmptyLeaf() && node.right_child != EmptyLeaf()
 		return [node.value, to_array(node.right_child)]
 	elseif node.right_child == EmptyLeaf() && node.left_child != EmptyLeaf()
@@ -122,26 +140,23 @@ function to_array{T}(node::Node{T})
 	end
 end
 
-function to_array{T}(leaf::Leaf{T})
+function to_array(leaf::Leaf)
 	return leaf.value
 end
 
 
-function insert!{T}(tree::BST, value::T)
+function insert!(tree::BST, value::Real)
 	tree.head = insert(tree.head, value)
-	tree.size += 1
 end
 
-function insert!{T}(tree::BST, values::Vector{T})
+function insert!(tree::BST, values::Vector)
 	for value in values
 		tree.head = insert(tree.head, value)
-		tree.size += 1
 	end
 end
 
-function delete!{T}(tree::BST, value::T)
+function delete!(tree::BST, value::Real)
 	tree.head = delete(tree.head, value)
-	tree.size = tree.size - 1
 end
 
 function delete!(tree::BST, value::Vector)
@@ -150,12 +165,16 @@ function delete!(tree::BST, value::Vector)
 	end
 end
 
-function search{T}(tree::BST, value::T)
+function search(tree::BST, value::Real)
 	return search(tree.head, value)
 end
 
 function to_array(tree::BST)
 	return to_array(tree.head)
+end
+
+function size(tree::BST)
+	return size(tree.head)
 end
 
 function minimum(tree::BST)
