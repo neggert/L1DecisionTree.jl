@@ -1,6 +1,6 @@
 module BinarySearchTree
 
-export BST, insert!, delete!, search, to_array, minimum
+export BST, insert!, delete!, search, to_array, minimum, select, median
 
 import Base.size
 
@@ -118,6 +118,24 @@ function size(l::EmptyLeaf)
 	return 0::Integer
 end
 
+function select(node::Node, k::Integer)
+	if k == size(node.left_child) + 1
+		return node.value
+	elseif k <= size(node.left_child)
+		return select(node.left_child, k)
+	else
+		return select(node.right_child, k - size(node.left_child) - 1)
+	end
+end
+
+function select(leaf::Leaf, k::Integer)
+	if k == 1
+		return leaf.value
+	else
+		throw(KeyError("Select non-1st item from Leaf"))
+	end
+end
+
 function minimum(node::Node)
 	if node.left_child == EmptyLeaf()
 		return node.value
@@ -175,6 +193,19 @@ end
 
 function size(tree::BST)
 	return size(tree.head)
+end
+
+function select(tree::BST, k::Integer)
+	return select(tree.head, k)
+end
+
+function median(tree::BST)
+	s = size(tree)
+	if s % 2 == 0
+		return (select(tree, iceil(s / 2)) + select(tree, iceil(s / 2) + 1)) / 2
+	else
+		return select(tree, s / 2 + 1)
+	end
 end
 
 function minimum(tree::BST)

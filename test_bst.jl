@@ -65,10 +65,32 @@ function test_min()
 	end
 end
 
+function test_select()
+	for i in 1:100
+		t = BST()
+		x = rand(100)
+		insert!(t, x)
+		xs = sort(x)
+		for _ in 1:10
+			j = rand(1:100)
+			@test select(t, j) == xs[j]
+		end
+	end
+end
+
+function test_median()
+	for i in 1:100
+		t = BST()
+		x = rand(100)
+		insert!(t, x)
+		@test_approx_eq median(t) Base.median(x)
+	end
+end
 
 test_insert_and_search(rand(1000), rand(1000))
 test_insert_vector(rand(1000), rand(1000))
 test_min()
 test_delete(rand(10))
 test_delete_vector(rand(10))
-
+test_select()
+test_median()
