@@ -2,7 +2,7 @@ module BinarySearchTree
 
 export BST, insert!, delete!, search, to_array, minimum, select, median
 
-import Base.size
+import Base: size, median, insert!, delete!
 
 abstract AbstractNode
 
@@ -204,7 +204,7 @@ function median(tree::BST)
 	if s % 2 == 0
 		return (select(tree, iceil(s / 2)) + select(tree, iceil(s / 2) + 1)) / 2
 	else
-		return select(tree, s / 2 + 1)
+		return select(tree, ifloor(s / 2) + 1)
 	end
 end
 
