@@ -1,5 +1,5 @@
 using Base.Test
-include("bst.jl")
+include("splay_tree.jl")
 using BinarySearchTree
 
 function test_insert_and_search{T}(x::Vector{T}, y::Vector{T})
@@ -8,10 +8,11 @@ function test_insert_and_search{T}(x::Vector{T}, y::Vector{T})
 	for xi in x
 		i += 1
 		insert!(t, xi)
+		@test search(t, xi)
 		@test size(t) == i
 	end
 	for xi in x
-		@test(search(t, xi))
+		@test search(t, xi)
 	end
 	for yi in y
 		@test(!search(t, yi))
@@ -30,6 +31,25 @@ function test_insert_vector(x::Vector, y::Vector)
 	end
 end
 
+function test_delete_duplicates{T}(x::Vector{T})
+	t = BST()
+	y = [x, x]
+	insert!(t, y)
+	for i in 1:length(x)
+		delete!(t, y[i])
+		@test search(t, y[i])
+		@test size(t) == length(y) - i
+		@test size(t) == length(to_array(t.head))
+	end
+	for i in (length(x)+1):(length(y) - 1)
+		delete!(t, y[i])
+		@test !search(t, y[i])
+		@test size(t) == length(y) - i
+		@test size(t) == length(to_array(t.head))
+
+	end
+end
+
 
 function test_delete{T}(x::Vector{T})
 	t = BST()
@@ -38,6 +58,9 @@ function test_delete{T}(x::Vector{T})
 		delete!(t, x[i])
 		@test !search(t, x[i])
 		@test size(t) == length(x) - i
+		if size(t) > 0
+			@test size(t) == length(to_array(t.head))
+		end
 		for j in i+1:length(x)
 			@test(search(t, x[j]))
 		end
@@ -72,25 +95,31 @@ function test_select()
 		insert!(t, x)
 		xs = sort(x)
 		for _ in 1:10
-			j = rand(1:100)
+			j = rand(1:10)
 			@test select(t, j) == xs[j]
 		end
 	end
 end
 
 function test_median()
-	for i in 1:100
+	for i in 1:10
 		t = BST()
-		x = rand(100)
+		x = rand(1000)
+		x = [x, x]
+		insert!(t, x)
+		@test_approx_eq median(t) Base.median(x)
+		t = BST()
+		x = rand(1001)
 		insert!(t, x)
 		@test_approx_eq median(t) Base.median(x)
 	end
 end
 
+srand(123456789)
 test_insert_and_search(rand(1000), rand(1000))
 test_insert_vector(rand(1000), rand(1000))
-test_min()
-test_delete(rand(10))
-test_delete_vector(rand(10))
 test_select()
+test_delete(rand(1000))
+test_delete_duplicates(rand(1000))
+test_delete_vector(rand(1000))
 test_median()
