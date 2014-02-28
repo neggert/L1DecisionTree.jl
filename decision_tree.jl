@@ -69,7 +69,7 @@ function build_stump{T<:FloatingPoint}(X::DataFrame, Y::Vector{T}, min_leaf_samp
 		left_mask = X[:, split_feat] .<= split_val
 		right_mask = X[:, split_feat] .> split_val
 		if all(left_mask) || all(right_mask)
-			error(split_feat, " ", split_val, " ", X)
+			return DTLeaf{T}(median(Y)::T)
 		end
 		return DTNode{T}(split_feat, split_val,
 					  build_stump(X[left_mask, :], Y[left_mask]::Vector{T}, min_leaf_samples, max_depth - 1, n_feats),
