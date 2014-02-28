@@ -18,6 +18,7 @@ function build_forest(X::DataFrame, Y::Vector, n_trees::Int=50, min_leaf_samples
 	feats_per_split = ifloor(size(X, 2) / 3)
 
 	trees = @parallel (vcat) for i in 1:n_trees
+		println("Building tree #", i)
 		build_bootstrap_tree(X, Y, min_leaf_samples, max_depth, feats_per_split)
 	end
 

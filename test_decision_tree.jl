@@ -108,7 +108,7 @@ function test_decision_tree()
 end
 
 function time_decision_tree()
-	df = readtable("../../Kaggle/LoanDefault/data/train_imputed.csv",
+	df = readtable("../data/train_imputed.csv",
 				   header=true, nrows=5000 )
 
 	# run once to get everything jit-ed
@@ -123,7 +123,7 @@ function time_decision_tree()
 		X = df[1:n, 1:(1+m)]
 		y = Float64[x for x in df[1:n, size(df, 2)]]
 		t1 = time()
-		build_tree(X, y, 1, 5, ifloor(size(X, 2) / 2))
+		build_tree(X, y, 1, 5)
 		t2 = time()
 		println(n, ",", m, ",", t2-t1)
 	end
