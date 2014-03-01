@@ -29,5 +29,5 @@ function test_build_rf()
 	@test mean(abs(y - y_pred)) < 2.
 end
 
-test_build_bootstrap()
+# test_build_bootstrap()
 test_build_rf()

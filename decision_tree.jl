@@ -102,34 +102,26 @@ function get_split(X::DataFrame, Y::Vector, n_feats::Integer)
 end
 
 function get_best_gain(x::DataArray, y::Vector)
-	sorted_indices = sortperm(x)
-	ys = y[sorted_indices]
-	xs = x[sorted_indices]
+	min = minimum(x)
+	max = maximum(x)
 
-	best_split_pos::Int = 1
-	best_gain::Float64 = 0.
+	split_val = min + rand() * (max - min)
 
-	left = FastMAEAccumulator()
-	right = FastMAEAccumulator()
-	insert!(right, ys)
-
-	total_mae::Float64 = right.mae
-
-	for split_pos in 1:length(ys)
-		insert!(left, ys[split_pos])
-		delete!(right, ys[split_pos])
-		if (split_pos < length(ys)) && (xs[split_pos + 1] == xs[split_pos])
-			continue
-		end
-		gain = total_mae - left.mae - right.mae
-
-		if gain > best_gain
-			best_gain = gain
-			best_split_pos = split_pos
-		end
+	total_mae = sum(abs(median(y) - y))
+	left_indices = x .<= split_val
+	if sum(left_indices) > 0
+		left_mae = sum(abs(median(y[left_indices]) - y[left_indices]))
+	else
+		left_mae = 0
+	end
+	if sum(!left_indices) > 0
+		right_mae = sum(abs(median(y[!left_indices]) - y[!left_indices]))
+	else
+		right_mae = 0
 	end
 
-	return xs[best_split_pos], best_gain
+
+	return split_val, total_mae - left_mae - right_mae
 end
 
 
