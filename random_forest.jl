@@ -14,12 +14,12 @@ type RandomForest{T}
 	trees::Vector{DecisionTree{T}}
 end
 
-function build_forest(X::DataFrame, Y::Vector, n_trees::Int=50, min_leaf_samples::Int=5, max_depth::Int=50)
+function build_forest(X::DataFrame, Y::Vector, n_trees::Int=1000, min_leaf_samples::Int=3, max_depth::Int=50)
 	feats_per_split = ifloor(size(X, 2) / 3)
 
 	trees = @parallel (vcat) for i in 1:n_trees
 		println("Building tree #", i)
-		build_bootstrap_tree(X, Y, min_leaf_samples, max_depth, feats_per_split)
+		build_tree(X, Y, min_leaf_samples, max_depth, feats_per_split)
 	end
 
 	RandomForest(trees)
@@ -27,8 +27,8 @@ end
 
 function predict(rf::RandomForest, X::DataFrame)
 
-	results = @parallel (hcat) for t in rf.trees
-		predict(t, X)
+	results = @parallel (hcat) for i in 1:length(rf.trees)
+		predict(rf.trees[i], X)
 	end
 	mapslices(median, results, 2)
 end
